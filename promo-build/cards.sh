@@ -48,19 +48,26 @@ convert cards/bg_dark.png \
   -annotate +0+770 "VALUED AT UP TO \$1,500" \
   cards/card2.png
 
-# CARD 3: booking
+# CARD 3: booking (with QR)
 convert cards/bg_dark.png \
   -font $F8 -pointsize 78 -kerning 5 -fill white -gravity north \
-  -annotate +0+330 "BOOK BY MIDNIGHT SUNDAY" \
+  -annotate +0+240 "BOOK BY MIDNIGHT SUNDAY" \
   -font $F7 -pointsize 52 -kerning 8 -fill "$GOLD" \
-  -annotate +0+490 "TENFIFTYBAKERS.COM.AU" \
+  -annotate +0+390 "TENFIFTYBAKERS.COM.AU" \
   cards/card3_base.png
+# QR panel: white rounded card + black QR + label
+convert cards/qr_raw.png -resize 252x252 cards/qr_s.png
+convert -size 300x352 xc:none -fill white -draw "roundrectangle 0,0 299,351 18,18" cards/qr_panel.png
+convert cards/qr_panel.png cards/qr_s.png -gravity north -geometry +0+24 -composite \
+  -font $F7 -pointsize 26 -kerning 6 -fill '#111111' -gravity south \
+  -annotate +0+22 "SCAN TO BOOK" cards/qr_card.png
 # gold chip with code
 convert -size 560x92 xc:none -fill none -stroke "$GOLD" -strokewidth 3 \
   -draw "roundrectangle 2,2 557,89 14,14" \
   -font $F7 -pointsize 40 -kerning 10 -stroke none -fill white -gravity center \
   -annotate +0+2 "USE CODE: NWTRS" cards/chip.png
-convert cards/card3_base.png cards/chip.png -gravity north -geometry +0+640 -composite cards/card3.png
+convert cards/card3_base.png cards/chip.png -gravity north -geometry +0+520 -composite \
+  cards/qr_card.png -gravity north -geometry +0+666 -composite cards/card3.png
 
 # CARD 4: logo end card
 convert "$LOGO" -resize 1250x cards/logo_w.png
@@ -69,6 +76,8 @@ convert cards/bg_dark.png cards/logo_w.png -gravity center -geometry +0-60 -comp
   -annotate +0+640 "BAKERS BEACH · TASMANIA" \
   -font $F5 -pointsize 26 -kerning 8 -fill "$GOLD" \
   -annotate +0+720 "TENFIFTYBAKERS.COM.AU  ·  CODE NWTRS" \
+  -font $F5 -pointsize 22 -kerning 6 -fill '#8F887A' \
+  -annotate +0+790 "MUSIC: “SLOW AGAIN” — WRITTEN FOR TEN FIFTY" \
   cards/card4.png
 
 # ---------- card segments with gentle zoom + fades ----------

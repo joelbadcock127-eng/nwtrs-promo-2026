@@ -61,10 +61,10 @@ def main():
     # ---------------- titles ----------------
     # (shot_id, offset, dur, style, lines)
     T = [
-        (0, 2.2, 5.2, "open", ["TEN FIFTY BAKERS PRESENTS", "BAKERS BEACH · TASMANIA"]),
-        (1, 0.10, 3.2, "lt", ["1,100 PRIVATE ACRES"]),
+        (0, 2.2, 5.2, "open", ["TASMANIA PRESENTS", "TEN FIFTY BAKERS"]),
+        (1, 0.10, 3.2, "lt", ["1,137 PRIVATE ACRES"]),
         (3, 0.20, 3.6, "lt", ["23 KM OF WILD TRAILS"]),
-        (9, 0.30, 3.6, "lt", ["FOREST · MOORLAND · COAST"]),
+        (9, 0.30, 3.6, "lt", ["SWAMP · FOREST · COAST"]),
         (11, 0.60, 4.0, "lt", ["YOU WON'T RUN ALONE"]),
         (12, 0.40, 4.0, "lt", ["TRAIL RUNNING COUNTRY"]),
         (18, 0.50, 6.4, "big", ["THEN COME HOME", "TO TEN FIFTY"]),
@@ -73,6 +73,11 @@ def main():
         (31, 0.20, 3.4, "lt", ["OUTDOOR BATHS"]),
         (37, 0.30, 3.6, "lt", ["EVENINGS BY THE FIRE"]),
         (40, 0.70, 6.0, "lt", ["SOME NIGHTS, THE SKY JOINS IN"]),
+        # lyric captions — the song was written for the property
+        (2, 0.30, 3.4, "lyr", ["“morning light through tall gum trees”"]),
+        (5, 0.50, 3.4, "lyr", ["“footsteps on an empty track”"]),
+        (13, 0.40, 3.2, "lyr", ["“nothing here but sky and land”"]),
+        (30, 0.40, 3.0, "lyr", ["“steam rising in cooling air”"]),
     ]
     R2_START = starts[35]
     def ftime(shot, offset):
@@ -101,6 +106,14 @@ def main():
                    "-font", F6, "-pointsize", "54", "-kerning", "14", "-fill", GOLD,
                    "-annotate", "+0-170", lines[1],
                    png]
+        elif style == "lyr":
+            cmd = ["convert", "-size", "1920x1080", "xc:none",
+                   "-font", F5, "-pointsize", "40", "-kerning", "4",
+                   "-fill", "#E4DFD2", "-gravity", "southwest",
+                   "-annotate", "+120+90", lines[0],
+                   "-font", F5, "-pointsize", "24", "-kerning", "10", "-fill", GOLD,
+                   "-annotate", "+124+58", "— SLOW AGAIN, WRITTEN FOR TEN FIFTY",
+                   png]
         else:  # lower third
             cmd = ["convert", "-size", "1920x1080", "xc:none",
                    "-fill", GOLD, "-draw", "rectangle 120,868 240,873",
@@ -127,6 +140,25 @@ def main():
         nxt = f"[o{n}]"
         fc2.append(f"{cur}[ov{n}]overlay=0:0:enable='between(t,{t0:.2f},{t1:.2f})'{nxt}")
         cur = nxt
+    # persistent corner URL through the house/night acts (bottom-right, subtle)
+    urlpng = os.path.join(tdir, "url.png")
+    run(["convert", "-size", "1920x1080", "xc:none",
+         "-font", F6, "-pointsize", "27", "-kerning", "6",
+         "-fill", "white", "-gravity", "southeast",
+         "-annotate", "+96+64", "TENFIFTYBAKERS.COM.AU", urlpng], "url-png")
+    run(["convert", urlpng, "(", "+clone", "-background", "black", "-shadow", "70x4+0+2", ")",
+         "+swap", "-background", "none", "-layers", "merge", "+repage",
+         "-resize", "1920x1080!", urlpng], "url-shadow")
+    u0 = ftime(18, 0.5)
+    u1 = ftime(41, 0.0) + 4.1
+    nu = len(T)
+    ins += ["-loop", "1", "-t", "190", "-i", urlpng]
+    fc2.append(
+        f"[{nu+1}:v]format=rgba,colorchannelmixer=aa=0.62,"
+        f"fade=t=in:st={u0:.2f}:d=1.0:alpha=1,"
+        f"fade=t=out:st={u1-1.0:.2f}:d=1.0:alpha=1,setpts=PTS-STARTPTS[ovu]")
+    fc2.append(f"{cur}[ovu]overlay=0:0:enable='between(t,{u0:.2f},{u1:.2f})'[ou]")
+    cur = "[ou]"
     fc2.append(f"{cur}fade=t=in:st=0:d=1.2[vout]")
     titled = os.path.join(BASE, "work/titled.mp4")
     run(["ffmpeg", "-v", "error"] + ins +

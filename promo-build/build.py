@@ -30,6 +30,7 @@ V, S = "vid", "still"
 def N(f): return os.path.join(SRC_N, f)
 def B(f): return os.path.join(SRC_B, f)
 def C(f): return os.path.join(SRC_C, f)
+def WP(f): return os.path.join(BASE, "src/webphotos", f)
 
 ACTS = [
     # (act_end_time, [shots])
@@ -40,7 +41,8 @@ ACTS = [
         dict(id=1, type=V, src=C("Web_Clip_Drone_06.mp4"), start=0.0, w=2.6),
         dict(id=2, type=V, src=C("Web_Clip_Drone_010.mp4"), start=1.0, w=4.2),
         dict(id=3, type=V, src=C("Web_Clip_Drone_09.mp4"), start=9.0, w=4.2),
-        dict(id=4, type=S, src=N("IMG_2.JPG"), kb="in", w=3.2),
+        dict(id=4, type="ai", src=os.path.join(AI, "map.mp4"),
+             fallback=dict(type=S, src=N("IMG_2.JPG"), kb="in"), w=3.2),
     ]),
     (48.2, [
         dict(id=5, type=V, src=N("IMG_0409.MP4"), start=1.0, w=4.0, grade="phone"),
@@ -55,8 +57,9 @@ ACTS = [
     (70.0, [
         dict(id=12, type=V, src=N("IMG_5758.MP4"), start=6.0, w=5.0, grade="phone"),
         dict(id=13, type=V, src=N("IMG_4240.MP4"), start=6.0, w=4.0, grade="phone"),
-        dict(id=14, type=S, src=B("IMG_1047.jpg"), kb="panlr", w=3.4),
-        dict(id=15, type=S, src=B("IMG_1053.jpg"), kb="in", w=3.0),
+        dict(id=14, type="trip", src=[N("IMG_6221.MP4"), N("IMG_7732.MP4"), N("IMG_6203.MP4")],
+             start=[0.5, 0.5, 0.5], w=3.4, grade="phone"),
+        dict(id=15, type=V, src=C("Web_Clip_Ground_00274963.mp4"), start=1.0, w=3.0),
         dict(id=16, type=V, src=C("Web_Clip_Ground_00276589.mp4"), start=1.5, w=3.6),
         dict(id=17, type=V, src=C("Web_Clip_Drone_012.mp4"), start=4.0, w=4.6),
     ]),
@@ -69,12 +72,13 @@ ACTS = [
         dict(id=21, type=V, src=C("Web_Clip_Ground_00281759.mp4"), start=1.0, w=3.0),
         dict(id=22, type=V, src=C("Web_Clip_Ground_00282208.mp4"), start=0.5, w=3.0),
         dict(id=23, type=V, src=C("Web_Clip_Ground_00282406.mp4"), start=2.0, w=4.0),
-        dict(id=24, type=S, src=N("IMG_0839.JPEG"), kb="in", w=2.6),
+        dict(id=24, type=S, src=N("IMG_0836.JPEG"), kb="down", w=2.6),
         dict(id=25, type=S, src=N("IMG_23.JPEG"), kb="panlr", w=3.0),
         dict(id=26, type=S, src=N("IMG_25.JPEG"), kb="in", w=3.0),
         dict(id=27, type=S, src=B("IMG_0813.jpg"), kb="panrl", w=2.6),
-        dict(id=28, type=S, src=B("IMG_0753.jpg"), kb="in", w=2.6),
-        dict(id=29, type=V, src=C("Web_Clip_Ground_00280213.mp4"), start=0.5, w=3.0),
+        dict(id=28, type="ai", src=os.path.join(AI, "platter.mp4"),
+             fallback=dict(type=S, src=B("IMG_0778.jpg"), kb="in"), w=2.6),
+        dict(id=29, type=S, src=WP("DSC01767.jpg"), kb="out", w=3.0),
         dict(id=30, type=V, src=C("Web_Clip_Ground_00280516.mp4"), start=4.0, w=3.6),
         dict(id=31, type=V, src=C("Web_Clip_Ground_00276247.mp4"), start=1.0, w=4.0),
         dict(id=32, type=S, src=N("IMG_17.JPG"), kb="out", w=3.0),
@@ -84,7 +88,8 @@ ACTS = [
     (153.5, [
         dict(id=35, type="ai", src=os.path.join(AI, "sunset.mp4"),
              fallback=dict(type=S, src=N("IMG_4994.JPEG"), kb="up"), w=4.6),
-        dict(id=36, type=S, src=N("IMG_5017.JPEG"), kb="panlr", w=3.0),
+        dict(id=36, type="ai", src=os.path.join(AI, "sunset2.mp4"),
+             fallback=dict(type=S, src=N("IMG_5017.JPEG"), kb="panlr"), w=3.0),
         dict(id=37, type=V, src=C("Web_Clip_Ground_00278960.mp4"), start=2.0, w=4.6),
         dict(id=38, type=S, src=N("IMG_19.JPG"), kb="in", w=3.6),
         dict(id=39, type="ai", src=os.path.join(AI, "moon.mp4"),
@@ -158,7 +163,8 @@ def render_trip(shot, dur, out):
     run(["ffmpeg", "-v", "error"] + ins + ["-filter_complex", fc, "-map", "[v]"]
         + enc_args(out, dur))
 
-AI_YBIAS = {"sunset": 0.62, "aurora1": 0.60, "aurora2": 0.50, "moon": 0.55}
+AI_YBIAS = {"sunset": 0.62, "aurora1": 0.60, "aurora2": 0.50, "moon": 0.55,
+            "sunset2": 0.50, "platter": 0.50, "map": 0.50}
 
 def render_ai(shot, dur, out):
     src = shot["src"]
