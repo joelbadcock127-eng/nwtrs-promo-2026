@@ -37,24 +37,25 @@ def main():
     tl = json.load(open(os.path.join(BASE, "work/timeline.json")))
     starts = {i: st for i, st, d in tl}
     r1 = os.path.join(BASE, "work/r1.mp4"); r2 = os.path.join(BASE, "work/r2.mp4")
-    concat(list(range(0, 35)), r1)
-    concat(list(range(35, 42)), r2)
-    parts = [r1, r2] + [f"{SEG}/{i:03d}.mp4" for i in range(42, 46)]
-    durs = [dur_of(p) for p in parts]
-    print("part durations:", [round(d, 2) for d in durs])
-    # xfade chain
-    fc, off, cur = [], 0.0, "[0:v]"
-    for k in range(1, len(parts)):
-        off = off + durs[k-1] - XF[k-1]
-        outl = f"[x{k}]"
-        fc.append(f"{cur}[{k}:v]xfade=transition=fade:duration={XF[k-1]}:offset={off:.3f}{outl}")
-        cur = outl
-    fcs = ";".join(fc)
     joined = os.path.join(BASE, "work/joined.mp4")
-    run(["ffmpeg", "-v", "error"] + sum([["-i", p] for p in parts], []) +
-        ["-filter_complex", fcs, "-map", cur.strip("[]").join(["[", "]"]),
-         "-r", "24", "-pix_fmt", "yuv420p", "-c:v", "libx264", "-crf", "17",
-         "-preset", "medium", "-an", "-y", joined], "xfade")
+    if not (os.path.exists(joined) and os.environ.get("SKIP_JOIN")):
+        concat(list(range(0, 35)), r1)
+        concat(list(range(35, 42)), r2)
+        parts = [r1, r2] + [f"{SEG}/{i:03d}.mp4" for i in range(42, 46)]
+        durs = [dur_of(p) for p in parts]
+        print("part durations:", [round(d, 2) for d in durs])
+        # xfade chain
+        fc, off, cur = [], 0.0, "[0:v]"
+        for k in range(1, len(parts)):
+            off = off + durs[k-1] - XF[k-1]
+            outl = f"[x{k}]"
+            fc.append(f"{cur}[{k}:v]xfade=transition=fade:duration={XF[k-1]}:offset={off:.3f}{outl}")
+            cur = outl
+        fcs = ";".join(fc)
+        run(["ffmpeg", "-v", "error"] + sum([["-i", p] for p in parts], []) +
+            ["-filter_complex", fcs, "-map", cur.strip("[]").join(["[", "]"]),
+             "-r", "24", "-pix_fmt", "yuv420p", "-c:v", "libx264", "-crf", "17",
+             "-preset", "medium", "-an", "-y", joined], "xfade")
     print("joined dur:", dur_of(joined))
 
     # ---------------- titles ----------------
@@ -96,9 +97,9 @@ def main():
             cmd = ["convert", "-size", "1920x1080", "xc:none",
                    "-font", F7, "-pointsize", "84", "-kerning", "8",
                    "-fill", "white", "-gravity", "center",
-                   "-annotate", "+0-45", lines[0],
-                   "-font", F6, "-pointsize", "50", "-kerning", "14", "-fill", GOLD,
-                   "-annotate", "+0+65", lines[1],
+                   "-annotate", "+0-285", lines[0],
+                   "-font", F6, "-pointsize", "54", "-kerning", "14", "-fill", GOLD,
+                   "-annotate", "+0-170", lines[1],
                    png]
         else:  # lower third
             cmd = ["convert", "-size", "1920x1080", "xc:none",
@@ -109,7 +110,8 @@ def main():
                    png]
         # soft shadow for legibility
         run(cmd, "title-png")
-        run(["convert", png, "(", "+clone", "-background", "black", "-shadow", "70x5+0+3", ")",
+        shadow = "85x7+0+4" if style == "big" else "70x5+0+3"
+        run(["convert", png, "(", "+clone", "-background", "black", "-shadow", shadow, ")",
              "+swap", "-background", "none", "-layers", "merge", "+repage",
              "-resize", "1920x1080!", png], "title-shadow")
 
@@ -117,7 +119,7 @@ def main():
     fc2, cur = [], "[0:v]"
     for n, (sid, offs, tdur, style, lines) in enumerate(T):
         t0 = ftime(sid, offs); t1 = t0 + tdur
-        ins += ["-loop", "1", "-i", os.path.join(tdir, f"t{n:02d}.png")]
+        ins += ["-loop", "1", "-t", "190", "-i", os.path.join(tdir, f"t{n:02d}.png")]
         idx = n + 1
         fc2.append(
             f"[{idx}:v]format=rgba,fade=t=in:st={t0:.2f}:d=0.7:alpha=1,"
