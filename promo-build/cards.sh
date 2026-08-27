@@ -38,13 +38,14 @@ convert cards/bg_welcome.png \
 convert cards/bg_dark.png \
   -font $F6 -pointsize 30 -kerning 10 -fill "$GOLD" -gravity north \
   -annotate +0+250 "FOR NWTRS RUNNERS, FRIENDS & FAMILY" \
-  -fill "$GOLD" -draw "rectangle 885,343 1035,347" \
-  -font $F7 -pointsize 66 -kerning 3 -fill white \
-  -annotate +0+405 "STAY 2 NIGHTS — 3RD NIGHT FREE" \
+  -fill "$GOLD" -draw "rectangle 885,340 1035,344" \
+  -font $F7 -pointsize 58 -kerning 3 -fill white \
+  -annotate +0+392 "PAY FOR 2 OR MORE NIGHTS" \
+  -annotate +0+478 "AND RECEIVE AN ADDITIONAL NIGHT FREE" \
   -font $F5 -pointsize 30 -kerning 6 -fill '#D9D4C8' \
-  -annotate +0+552 "BOOK THIS WEEK · STAY ANY TIME IN THE NEXT 12 MONTHS" \
+  -annotate +0+590 "STAY ANY TIME IN THE NEXT 12 MONTHS" \
   -font $F6 -pointsize 32 -kerning 6 -fill "$GOLD" \
-  -annotate +0+622 "VALUED AT UP TO \$1,500" \
+  -annotate +0+656 "VALUED BETWEEN \$700 AND \$1,300" \
   cards/card2.png
 
 # CARD 3: booking (with QR)
