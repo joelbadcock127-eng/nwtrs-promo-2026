@@ -40,20 +40,19 @@ convert cards/bg_dark.png \
   -annotate +0+250 "FOR NWTRS RUNNERS, FRIENDS & FAMILY" \
   -fill "$GOLD" -draw "rectangle 885,320 1035,324" \
   -font $F7 -pointsize 66 -kerning 3 -fill white \
-  -annotate +0+420 "STAY 2 NIGHTS — 3RD NIGHT FREE" \
-  -annotate +0+540 "STAY 3 NIGHTS — 4TH NIGHT FREE" \
+  -annotate +0+470 "STAY 2 NIGHTS — 3RD NIGHT FREE" \
   -font $F5 -pointsize 30 -kerning 6 -fill '#D9D4C8' \
-  -annotate +0+700 "BOOK THIS WEEK · STAY ANY TIME IN THE NEXT 12 MONTHS" \
+  -annotate +0+640 "BOOK THIS WEEK · STAY ANY TIME IN THE NEXT 12 MONTHS" \
   -font $F6 -pointsize 32 -kerning 6 -fill "$GOLD" \
-  -annotate +0+770 "VALUED AT UP TO \$1,500" \
+  -annotate +0+710 "VALUED AT UP TO \$1,500" \
   cards/card2.png
 
 # CARD 3: booking (with QR)
 convert cards/bg_dark.png \
   -font $F8 -pointsize 78 -kerning 5 -fill white -gravity north \
-  -annotate +0+240 "BOOK BY MIDNIGHT SUNDAY" \
+  -annotate +0+330 "BOOK BY MIDNIGHT SUNDAY" \
   -font $F7 -pointsize 52 -kerning 8 -fill "$GOLD" \
-  -annotate +0+390 "TENFIFTYBAKERS.COM.AU" \
+  -annotate +0+490 "TENFIFTYBAKERS.COM.AU" \
   cards/card3_base.png
 # QR panel: white rounded card + black QR + label
 convert cards/qr_raw.png -resize 252x252 cards/qr_s.png
@@ -66,8 +65,7 @@ convert -size 560x92 xc:none -fill none -stroke "$GOLD" -strokewidth 3 \
   -draw "roundrectangle 2,2 557,89 14,14" \
   -font $F7 -pointsize 40 -kerning 10 -stroke none -fill white -gravity center \
   -annotate +0+2 "USE CODE: NWTRS" cards/chip.png
-convert cards/card3_base.png cards/chip.png -gravity north -geometry +0+520 -composite \
-  cards/qr_card.png -gravity north -geometry +0+666 -composite cards/card3.png
+convert cards/card3_base.png cards/chip.png -gravity north -geometry +0+640 -composite cards/card3.png
 
 # CARD 4: logo end card
 convert "$LOGO" -resize 1250x cards/logo_w.png

@@ -48,8 +48,8 @@ ACTS = [
         dict(id=5, type=V, src=N("IMG_0409.MP4"), start=1.0, w=4.0, grade="phone"),
         dict(id=6, type=V, src=N("IMG_1176.MP4"), start=2.0, w=3.4, grade="phone"),
         dict(id=7, type="trip", src=[N("IMG_6220.MP4"), N("IMG_6234.MP4"), N("IMG_7746.MP4")],
-             start=[0.5, 0.5, 2.0], w=4.2, grade="phone"),
-        dict(id=8, type=S, src=N("IMG_1187.JPEG"), kb="up", w=3.2),
+             start=[0.5, 0.5, 0.5], speed=[1.0, 1.0, 0.42], w=4.2, grade="phone"),
+        dict(id=8, type=S, src=N("IMG_1187.JPEG"), kb="up", hh=True, w=3.2),
         dict(id=9, type=V, src=C("Web_Clip_Ground_00275535.mp4"), start=2.0, w=4.4),
         dict(id=10, type=V, src=C("Web_Clip_Ground_00278650.mp4"), start=1.0, w=3.0),
         dict(id=11, type=V, src=C("Web_Clip_Ground_00278171.mp4"), start=1.2, w=5.6),
@@ -72,10 +72,10 @@ ACTS = [
         dict(id=21, type=V, src=C("Web_Clip_Ground_00281759.mp4"), start=1.0, w=3.0),
         dict(id=22, type=V, src=C("Web_Clip_Ground_00282208.mp4"), start=0.5, w=3.0),
         dict(id=23, type=V, src=C("Web_Clip_Ground_00282406.mp4"), start=2.0, w=4.0),
-        dict(id=24, type=S, src=N("IMG_0836.JPEG"), kb="down", w=2.6),
-        dict(id=25, type=S, src=N("IMG_23.JPEG"), kb="panlr", w=3.0),
-        dict(id=26, type=S, src=N("IMG_25.JPEG"), kb="in", w=3.0),
-        dict(id=27, type=S, src=B("IMG_0813.jpg"), kb="panrl", w=2.6),
+        dict(id=24, type=S, src=N("IMG_0836.JPEG"), kb="down", hh=True, w=2.6),
+        dict(id=26, type=S, src=N("IMG_25.JPEG"), kb="in", hh=True, w=3.4),
+        dict(id=27, type="ai", src=os.path.join(AI, "bath.mp4"),
+             fallback=dict(type=S, src=B("IMG_0813.jpg"), kb="panrl"), w=2.8),
         dict(id=28, type="ai", src=os.path.join(AI, "platter.mp4"),
              fallback=dict(type=S, src=B("IMG_0778.jpg"), kb="in"), w=2.6),
         dict(id=29, type=S, src=WP("DSC01767.jpg"), kb="out", w=3.0),
@@ -91,7 +91,8 @@ ACTS = [
         dict(id=36, type="ai", src=os.path.join(AI, "sunset2.mp4"),
              fallback=dict(type=S, src=N("IMG_5017.JPEG"), kb="panlr"), w=3.0),
         dict(id=37, type=V, src=C("Web_Clip_Ground_00278960.mp4"), start=2.0, w=4.6),
-        dict(id=38, type=S, src=N("IMG_19.JPG"), kb="in", w=3.6),
+        dict(id=38, type="ai", src=os.path.join(AI, "firepit.mp4"),
+             fallback=dict(type=S, src=N("IMG_19.JPG"), kb="in"), w=3.6),
         dict(id=39, type="ai", src=os.path.join(AI, "moon.mp4"),
              fallback=dict(type=S, src=N("IMG_0503.JPEG"), kb="in"), w=4.0),
         dict(id=40, type="ai", src=os.path.join(AI, "aurora1.mp4"),
@@ -115,16 +116,36 @@ def enc_args(out, dur):
     return ["-r", str(FPS), "-pix_fmt", "yuv420p", "-c:v", "libx264", "-crf", "17",
             "-preset", "medium", "-t", f"{dur:.3f}", "-an", "-y", out]
 
+def src_dur(p):
+    r = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration",
+                        "-of", "csv=p=0", p], capture_output=True, text=True)
+    return float(r.stdout.strip())
+
 def render_vid(shot, dur, out):
-    vf = f"scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},fps={FPS}"
+    start = shot["start"]
+    avail = src_dur(shot["src"]) - start
+    pre = ""
+    if avail < dur + 0.05:
+        start = 0.0
+        avail = src_dur(shot["src"])
+        f = dur / max(avail - 0.05, 0.1)
+        if f > 1.0:
+            pre = f"setpts=PTS*{f:.5f},"
+    vf = f"{pre}scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},fps={FPS}"
     if shot.get("grade") == "phone":
         vf += ",eq=saturation=1.06:contrast=1.03,unsharp=5:5:0.4:5:5:0.0"
-    run(["ffmpeg", "-v", "error", "-ss", str(shot["start"]), "-i", shot["src"],
+    run(["ffmpeg", "-v", "error", "-ss", str(start), "-i", shot["src"],
          "-vf", vf] + enc_args(out, dur))
+
+HH_POST = (",scale=2020:1136,"
+           "crop=1920:1080:"
+           "x='50+9*sin(2*PI*t*0.5)+3*sin(2*PI*t*2.1+1.3)':"
+           "y='28+11*sin(2*PI*t*0.37+0.8)+3*sin(2*PI*t*1.7)'")
 
 def render_still(shot, dur, out):
     frames = max(2, round(dur * FPS))
     kb = shot.get("kb", "in")
+    hh = HH_POST if shot.get("hh") else ""
     src = shot["src"]
     if kb in ("up", "down"):
         # vertical pan across middle band via animated crop
@@ -133,7 +154,7 @@ def render_still(shot, dur, out):
         pos = expr_t if kb == "up" else f"(1-{expr_t})"
         vf = (f"scale={W}:-2,"
               f"crop={W}:{H}:0:'(ih-{H})*(0.5-{rng}/2+{rng}*{pos})',"
-              f"fps={FPS}")
+              f"fps={FPS}{hh}")
         run(["ffmpeg", "-v", "error", "-loop", "1", "-framerate", str(FPS), "-i", src,
              "-vf", vf] + enc_args(out, dur))
         return
@@ -149,22 +170,24 @@ def render_still(shot, dur, out):
     else:  # panrl
         z = "1.09"; x = f"(iw-iw/zoom)*(1-on/{d-1})"; y = "(ih-ih/zoom)/2"
     vf = (f"scale={IW}:{IH}:force_original_aspect_ratio=increase,crop={IW}:{IH},"
-          f"zoompan=z='{z}':x='{x}':y='{y}':d={d}:s={W}x{H}:fps={FPS}")
+          f"zoompan=z='{z}':x='{x}':y='{y}':d={d}:s={W}x{H}:fps={FPS}{hh}")
     run(["ffmpeg", "-v", "error", "-loop", "1", "-framerate", str(FPS), "-i", src,
          "-vf", vf] + enc_args(out, dur))
 
 def render_trip(shot, dur, out):
     ins, filts = [], []
-    for i, (s, st) in enumerate(zip(shot["src"], shot["start"])):
+    speeds = shot.get("speed", [1.0] * len(shot["src"]))
+    for i, (s, st, sp) in enumerate(zip(shot["src"], shot["start"], speeds)):
         ins += ["-ss", str(st), "-i", s]
-        filts.append(f"[{i}:v]scale=642:-2,crop=640:{H},fps={FPS},"
+        pre = f"setpts=PTS/{sp:.4f}," if sp != 1.0 else ""
+        filts.append(f"[{i}:v]{pre}scale=642:-2,crop=640:{H},fps={FPS},"
                      f"eq=saturation=1.06:contrast=1.03[v{i}]")
     fc = ";".join(filts) + f";[v0][v1][v2]hstack=3,scale={W}:{H}[v]"
     run(["ffmpeg", "-v", "error"] + ins + ["-filter_complex", fc, "-map", "[v]"]
         + enc_args(out, dur))
 
 AI_YBIAS = {"sunset": 0.62, "aurora1": 0.60, "aurora2": 0.50, "moon": 0.55,
-            "sunset2": 0.50, "platter": 0.50, "map": 0.50}
+            "sunset2": 0.50, "platter": 0.50, "map": 0.50, "bath": 0.50, "firepit": 0.50}
 
 def render_ai(shot, dur, out):
     src = shot["src"]

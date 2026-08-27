@@ -28,7 +28,48 @@ def polys_of(f):
         return [g["coordinates"][0]]
     return [p[0] for p in g["coordinates"]]
 
-STATES = [(f["properties"]["STATE_NAME"], polys_of(f)) for f in feats]
+def rdp(pts, eps):
+    # iterative Douglas-Peucker; closed rings are split at the midpoint
+    if len(pts) < 3:
+        return pts
+    if pts[0] == pts[-1]:
+        mid = len(pts) // 2
+        return rdp(pts[:mid + 1], eps)[:-1] + rdp(pts[mid:], eps)
+    keep = [False] * len(pts)
+    keep[0] = keep[-1] = True
+    stack = [(0, len(pts) - 1)]
+    while stack:
+        a, b = stack.pop()
+        ax, ay = pts[a]; bx, by = pts[b]
+        dx, dy = bx - ax, by - ay
+        n = math.hypot(dx, dy) or 1e-12
+        dmax, imax = 0.0, -1
+        for i in range(a + 1, b):
+            d = abs(dy * (pts[i][0] - ax) - dx * (pts[i][1] - ay)) / n
+            if d > dmax:
+                dmax, imax = d, i
+        if dmax > eps:
+            keep[imax] = True
+            stack.append((a, imax)); stack.append((imax, b))
+    return [p for p, k in zip(pts, keep) if k]
+
+STATES = []
+for f in feats:
+    name = f["properties"]["STATE_NAME"]
+    polys = polys_of(f)
+    if name == "Tasmania":
+        # seal the Tamar estuary (drop ring points inside its bbox), then simplify
+        def seal(p):
+            # flatten the Tamar estuary: pull inland ring points up to the coast line
+            out = []
+            for lo, la in p:
+                if 146.66 <= lo <= 147.30 and -41.55 <= la < -41.06:
+                    la = -41.06
+                out.append([lo, la])
+            return out
+        polys = [rdp(seal(p), 0.012) for p in polys]
+        polys = [p for p in polys if len(p) >= 3]
+    STATES.append((name, polys))
 
 def ease(t):  # smootherstep
     return t*t*t*(t*(t*6-15)+10)
@@ -122,23 +163,38 @@ for fi in range(N):
                 od.ellipse([px-rr, py-rr, px+rr, py+rr], outline=(*GOLD, alpha), width=4*SS)
                 img = Image.alpha_composite(img.convert("RGBA"), ov).convert("RGB")
         dr = ImageDraw.Draw(img)
-        r = 14 * SS * a
-        dr.ellipse([px-r, py-r, px+r, py+r], fill=GOLD)
-        dr.ellipse([px-r*0.45, py-r*0.45, px+r*0.45, py+r*0.45], fill=BG)
+        # teardrop map pin, gold with dark outline
+        r = 26 * SS * a
+        tip = (px, py)
+        cx0, cy0 = px, py - r * 2.1
+        dr.polygon([(px - r * 0.72, cy0 + r * 0.35), (px + r * 0.72, cy0 + r * 0.35), tip],
+                   fill=GOLD, outline=(15, 15, 15), width=3 * SS)
+        dr.ellipse([cx0 - r, cy0 - r, cx0 + r, cy0 + r], fill=GOLD,
+                   outline=(15, 15, 15), width=3 * SS)
+        dr.ellipse([cx0 - r * 0.42, cy0 - r * 0.42, cx0 + r * 0.42, cy0 + r * 0.42], fill=BG)
 
     img = img.resize((W, H), Image.LANCZOS)
 
-    # labels fade in
+    # label box with connector, fade in
     if t > 0.70:
         a = min(1.0, (t - 0.70) / 0.15)
         ov = Image.new("RGBA", (W, H), (0, 0, 0, 0))
         od = ImageDraw.Draw(ov)
         px, py = prj(*PIN); px /= SS; py /= SS
-        tx = px + 70; ty = py - 120
-        od.text((tx+2, ty+3), "BAKERS BEACH", font=F7, fill=(0, 0, 0, int(160*a)))
-        od.text((tx, ty), "BAKERS BEACH", font=F7, fill=(*WHITE, int(255*a)))
-        od.text((tx+2, ty+95+2), "NORTH WEST TASMANIA", font=F6, fill=(0, 0, 0, int(160*a)))
-        od.text((tx, ty+95), "NORTH WEST TASMANIA", font=F6, fill=(*GOLD, int(255*a)))
+        bw, bh = 640, 190
+        bx = px + 190; by = py - 260
+        aa = int(255 * a)
+        # connector from box left edge to just above pin tip
+        od.line([(px + 14, py - 46), (bx - 2, by + bh * 0.62)],
+                fill=(*GOLD, aa), width=4)
+        od.ellipse([bx - 8, by + bh * 0.62 - 6, bx + 4, by + bh * 0.62 + 6],
+                   fill=(*GOLD, aa))
+        od.rounded_rectangle([bx, by, bx + bw, by + bh], radius=16,
+                             fill=(11, 13, 17, int(228 * a)), outline=(*GOLD, aa), width=3)
+        f7b = ImageFont.truetype(os.path.join(BASE, "fonts/Montserrat-700.ttf"), 62)
+        f6b = ImageFont.truetype(os.path.join(BASE, "fonts/Montserrat-600.ttf"), 34)
+        od.text((bx + 40, by + 34), "BAKERS BEACH", font=f7b, fill=(*WHITE, aa))
+        od.text((bx + 42, by + 122), "NORTH WEST TASMANIA", font=f6b, fill=(*GOLD, aa))
         img = Image.alpha_composite(img.convert("RGBA"), ov).convert("RGB")
 
     # vignette
