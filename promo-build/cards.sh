@@ -38,13 +38,13 @@ convert cards/bg_welcome.png \
 convert cards/bg_dark.png \
   -font $F6 -pointsize 30 -kerning 10 -fill "$GOLD" -gravity north \
   -annotate +0+250 "FOR NWTRS RUNNERS, FRIENDS & FAMILY" \
-  -fill "$GOLD" -draw "rectangle 885,320 1035,324" \
+  -fill "$GOLD" -draw "rectangle 885,318 1035,322" \
   -font $F7 -pointsize 66 -kerning 3 -fill white \
-  -annotate +0+470 "STAY 2 NIGHTS — 3RD NIGHT FREE" \
+  -annotate +0+405 "STAY 2 NIGHTS — 3RD NIGHT FREE" \
   -font $F5 -pointsize 30 -kerning 6 -fill '#D9D4C8' \
-  -annotate +0+640 "BOOK THIS WEEK · STAY ANY TIME IN THE NEXT 12 MONTHS" \
+  -annotate +0+552 "BOOK THIS WEEK · STAY ANY TIME IN THE NEXT 12 MONTHS" \
   -font $F6 -pointsize 32 -kerning 6 -fill "$GOLD" \
-  -annotate +0+710 "VALUED AT UP TO \$1,500" \
+  -annotate +0+622 "VALUED AT UP TO \$1,500" \
   cards/card2.png
 
 # CARD 3: booking (with QR)
@@ -69,20 +69,25 @@ convert cards/card3_base.png cards/chip.png -gravity north -geometry +0+640 -com
 
 # CARD 4: logo end card
 convert "$LOGO" -resize 1250x cards/logo_w.png
+# small gold-outlined chip for the promo code
+convert -size 340x62 xc:none -fill none -stroke "$GOLD" -strokewidth 3 \
+  -draw "roundrectangle 2,2 337,59 12,12" \
+  -font $F6 -pointsize 28 -kerning 8 -stroke none -fill "$GOLD" -gravity center \
+  -annotate +0+1 "CODE NWTRS" cards/chip4.png
 convert cards/bg_dark.png cards/logo_w.png -gravity center -geometry +0-130 -composite \
   -font $F5 -pointsize 30 -kerning 14 -fill '#D9D4C8' -gravity north \
-  -annotate +0+560 "BAKERS BEACH · TASMANIA" \
+  -annotate +0+545 "BAKERS BEACH · TASMANIA" \
   -font $F5 -pointsize 26 -kerning 8 -fill "$GOLD" \
-  -annotate +0+636 "TENFIFTYBAKERS.COM.AU  ·  CODE NWTRS" \
+  -annotate +0+612 "TENFIFTYBAKERS.COM.AU" \
   -font $F5 -pointsize 22 -kerning 6 -fill '#8F887A' \
-  -annotate +0+700 "MUSIC: “SLOW AGAIN” — WRITTEN FOR TEN FIFTY" \
-  cards/card4.png
+  -annotate +0+742 "MUSIC: “SLOW AGAIN” — WRITTEN FOR TEN FIFTY" \
+  cards/card4_base.png
+convert cards/card4_base.png cards/chip4.png -gravity north -geometry +0+668 -composite cards/card4.png
 
 # ---------- card segments with gentle zoom + fades ----------
-seg () { # img dur out extra
+seg () { # img dur out fadeout — static cards, no zoom (text must not shimmer)
   local img=$1 dur=$2 out=$3 fadeout=$4
-  local d=$(python3 -c "print(round($dur*24))")
-  local vf="scale=3840:2160,zoompan=z='1.0+0.035*on/${d}':x='(iw-iw/zoom)/2':y='(ih-ih/zoom)/2':d=${d}:s=1920x1080:fps=24"
+  local vf="scale=1920:1080,fps=24"
   if [ -n "$fadeout" ]; then vf="$vf,fade=t=out:st=$fadeout:d=1.6"; fi
   ffmpeg -v error -loop 1 -framerate 24 -i "$img" -vf "$vf" -r 24 -pix_fmt yuv420p \
     -c:v libx264 -crf 17 -preset medium -t "$dur" -an -y "$out"

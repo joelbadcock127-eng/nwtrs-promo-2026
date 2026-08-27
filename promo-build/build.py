@@ -80,7 +80,8 @@ ACTS = [
         dict(id=29, type=S, src=WP("DSC01767.jpg"), kb="out", w=3.0),
         dict(id=30, type=V, src=C("Web_Clip_Ground_00280516.mp4"), start=4.0, w=3.6),
         dict(id=31, type=V, src=C("Web_Clip_Ground_00276247.mp4"), start=1.0, w=4.0),
-        dict(id=32, type=S, src=N("IMG_17.JPG"), kb="out", w=3.0),
+        dict(id=32, type="ai", src=os.path.join(AI, "bath17.mp4"),
+             fallback=dict(type=S, src=N("IMG_17.JPG"), kb="out"), w=3.0),
         dict(id=33, type=V, src=C("Web_Clip_Drone_011.mp4"), start=0.5, w=3.4),
         dict(id=34, type=V, src=C("Web_Clip_Drone_02.mp4"), start=0.5, w=4.0),
     ]),
@@ -190,7 +191,8 @@ def render_trip(shot, dur, out):
         + enc_args(out, dur))
 
 AI_YBIAS = {"sunset": 0.62, "aurora1": 0.60, "aurora2": 0.50, "moon": 0.55,
-            "sunset2": 0.50, "platter": 0.50, "map": 0.50, "firepit": 0.50, "dining": 0.50}
+            "sunset2": 0.50, "platter": 0.50, "map": 0.50, "firepit": 0.50, "dining": 0.50,
+            "bath17": 0.50}
 
 def render_ai(shot, dur, out):
     src = shot["src"]
