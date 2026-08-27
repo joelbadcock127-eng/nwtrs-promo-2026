@@ -42,14 +42,14 @@ ACTS = [
         dict(id=2, type=V, src=C("Web_Clip_Drone_010.mp4"), start=1.0, w=4.2),
         dict(id=3, type=V, src=C("Web_Clip_Drone_09.mp4"), start=9.0, w=4.2),
         dict(id=4, type="ai", src=os.path.join(AI, "map.mp4"),
-             fallback=dict(type=S, src=N("IMG_2.JPG"), kb="in"), w=3.2),
+             fallback=dict(type=S, src=N("IMG_2.JPG"), kb="in"), w=4.6),
     ]),
     (48.2, [
         dict(id=5, type=V, src=N("IMG_0409.MP4"), start=1.0, w=4.0, grade="phone"),
         dict(id=6, type=V, src=N("IMG_1176.MP4"), start=2.0, w=3.4, grade="phone"),
         dict(id=7, type="trip", src=[N("IMG_6220.MP4"), N("IMG_6234.MP4"), N("IMG_7746.MP4")],
-             start=[0.5, 0.5, 0.5], speed=[1.0, 1.0, 0.42], w=4.2, grade="phone"),
-        dict(id=8, type=S, src=N("IMG_1187.JPEG"), kb="up", hh=True, w=3.2),
+             start=[0.5, 0.5, 3.5], speed=[1.0, 1.0, 0.7], w=4.2, grade="phone"),
+        dict(id=8, type=S, src=N("IMG_1187.JPEG"), kb="up", sway=True, w=3.2),
         dict(id=9, type=V, src=C("Web_Clip_Ground_00275535.mp4"), start=2.0, w=4.4),
         dict(id=10, type=V, src=C("Web_Clip_Ground_00278650.mp4"), start=1.0, w=3.0),
         dict(id=11, type=V, src=C("Web_Clip_Ground_00278171.mp4"), start=1.2, w=5.6),
@@ -72,10 +72,9 @@ ACTS = [
         dict(id=21, type=V, src=C("Web_Clip_Ground_00281759.mp4"), start=1.0, w=3.0),
         dict(id=22, type=V, src=C("Web_Clip_Ground_00282208.mp4"), start=0.5, w=3.0),
         dict(id=23, type=V, src=C("Web_Clip_Ground_00282406.mp4"), start=2.0, w=4.0),
-        dict(id=24, type=S, src=N("IMG_0836.JPEG"), kb="down", hh=True, w=2.6),
-        dict(id=26, type=S, src=N("IMG_25.JPEG"), kb="in", hh=True, w=3.4),
-        dict(id=27, type="ai", src=os.path.join(AI, "bath.mp4"),
-             fallback=dict(type=S, src=B("IMG_0813.jpg"), kb="panrl"), w=2.8),
+        dict(id=24, type=V, src=C("Web_Clip_Ground_00281513.mp4"), start=0.3, w=2.8),
+        dict(id=26, type="ai", src=os.path.join(AI, "dining.mp4"),
+             fallback=dict(type=S, src=N("IMG_25.JPEG"), kb="in"), w=3.4),
         dict(id=28, type="ai", src=os.path.join(AI, "platter.mp4"),
              fallback=dict(type=S, src=B("IMG_0778.jpg"), kb="in"), w=2.6),
         dict(id=29, type=S, src=WP("DSC01767.jpg"), kb="out", w=3.0),
@@ -141,11 +140,15 @@ HH_POST = (",scale=2020:1136,"
            "crop=1920:1080:"
            "x='50+9*sin(2*PI*t*0.5)+3*sin(2*PI*t*2.1+1.3)':"
            "y='28+11*sin(2*PI*t*0.37+0.8)+3*sin(2*PI*t*1.7)'")
+SWAY_POST = (",scale=2020:1136,"
+             "crop=1920:1080:"
+             "x='50+16*sin(2*PI*t*0.16)':"
+             "y='28+10*sin(2*PI*t*0.11+1.1)'")
 
 def render_still(shot, dur, out):
     frames = max(2, round(dur * FPS))
     kb = shot.get("kb", "in")
-    hh = HH_POST if shot.get("hh") else ""
+    hh = HH_POST if shot.get("hh") else (SWAY_POST if shot.get("sway") else "")
     src = shot["src"]
     if kb in ("up", "down"):
         # vertical pan across middle band via animated crop
@@ -187,7 +190,7 @@ def render_trip(shot, dur, out):
         + enc_args(out, dur))
 
 AI_YBIAS = {"sunset": 0.62, "aurora1": 0.60, "aurora2": 0.50, "moon": 0.55,
-            "sunset2": 0.50, "platter": 0.50, "map": 0.50, "bath": 0.50, "firepit": 0.50}
+            "sunset2": 0.50, "platter": 0.50, "map": 0.50, "firepit": 0.50, "dining": 0.50}
 
 def render_ai(shot, dur, out):
     src = shot["src"]
@@ -199,6 +202,11 @@ def render_ai(shot, dur, out):
         yb = AI_YBIAS.get(base, 0.5)
         vf = (f"scale={W}:{H}:force_original_aspect_ratio=increase,"
               f"crop={W}:{H}:'(iw-ow)/2':'(ih-oh)*{yb}',fps={FPS}")
+        if base == "platter":
+            # extend the clip's pull-back: start punched in 12%, settle to full frame
+            vf += (f",crop=w='iw/(1.12-0.12*min(t/{dur:.3f},1))'"
+                   f":h='ih/(1.12-0.12*min(t/{dur:.3f},1))'"
+                   f":x='(iw-ow)/2':y='(ih-oh)/2',scale={W}:{H}")
         run(["ffmpeg", "-v", "error", "-i", src, "-vf", vf] + enc_args(out, dur))
     else:
         fb = dict(shot["fallback"]); fb["id"] = shot["id"]

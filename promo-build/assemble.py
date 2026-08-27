@@ -39,7 +39,7 @@ def main():
     r1 = os.path.join(BASE, "work/r1.mp4"); r2 = os.path.join(BASE, "work/r2.mp4")
     joined = os.path.join(BASE, "work/joined.mp4")
     if not (os.path.exists(joined) and os.environ.get("SKIP_JOIN")):
-        concat([i for i in range(0, 35) if i != 25], r1)
+        concat([i for i in range(0, 35) if i not in (25, 27)], r1)
         concat(list(range(35, 42)), r2)
         parts = [r1, r2] + [f"{SEG}/{i:03d}.mp4" for i in range(42, 46)]
         durs = [dur_of(p) for p in parts]
@@ -64,11 +64,11 @@ def main():
         (0, 2.2, 5.2, "open", ["TASMANIA PRESENTS", "TEN FIFTY BAKERS"]),
         (1, 0.10, 3.2, "lt", ["1,137 PRIVATE ACRES"]),
         (3, 0.20, 3.6, "lt", ["23 KM OF WILD TRAILS"]),
-        (9, 0.30, 3.6, "lt", ["SWAMP · FOREST · COAST"]),
+        (8, 0.15, 2.9, "lt", ["SWAMP · FOREST · COAST"]),
         (11, 0.60, 4.0, "lt", ["YOU WON'T RUN ALONE"]),
         (12, 0.40, 4.0, "lt", ["TRAIL RUNNING COUNTRY"]),
         (18, 0.50, 6.4, "big", ["THEN COME HOME", "TO TEN FIFTY"]),
-        (21, 1.40, 3.6, "lt", ["OFF-GRID LUXURY · SLEEPS 10"]),
+        (20, 0.20, 3.6, "lt", ["OFF-GRID LUXURY · SLEEPS 10"]),
         (29, 0.20, 3.4, "lt", ["WOOD-FIRED SAUNA"]),
         (31, 0.20, 3.4, "lt", ["OUTDOOR BATHS"]),
         (37, 0.30, 3.6, "lt", ["EVENINGS BY THE FIRE"]),
@@ -79,7 +79,6 @@ def main():
         (24.60, 4.4, "“morning light through tall gum trees”"),
         (36.20, 5.2, "“no clock, no place I need to be”"),
         (54.50, 4.4, "“nothing here but sky and land”"),
-        (78.90, 4.4, "“footsteps on an empty track”"),
     ]
     R2_START = starts[35]
     def ftime(shot, offset):
@@ -116,7 +115,7 @@ def main():
                    png]
         elif style == "lyr":
             cmd = ["convert", "-size", "1920x1080", "xc:none",
-                   "-fill", GOLD, "-draw", "rectangle 122,966 202,970",
+                   "-fill", GOLD, "-draw", "rectangle 122,944 202,948",
                    "-font", F5, "-pointsize", "40", "-kerning", "4",
                    "-fill", "#E4DFD2", "-gravity", "southwest",
                    "-annotate", "+120+70", lines[0],
@@ -170,7 +169,7 @@ def main():
     qrpng = os.path.join(tdir, "qr_corner.png")
     run(["convert", "-size", "1920x1080", "xc:none",
          "(", os.path.join(BASE, "cards/qr_card.png"), "-resize", "220x", ")",
-         "-gravity", "southeast", "-geometry", "+64+64", "-composite", qrpng], "qr-corner")
+         "-gravity", "south", "-geometry", "+0+36", "-composite", qrpng], "qr-corner")
     pdurs = [dur_of(p) for p in [r1, r2] +
              [f"{SEG}/{i:03d}.mp4" for i in (42, 43)]]
     q0 = pdurs[0] + pdurs[1] + pdurs[2] - (XF[0] + XF[1] + XF[2]) + 0.4

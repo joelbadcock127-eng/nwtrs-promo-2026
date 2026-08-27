@@ -69,13 +69,13 @@ convert cards/card3_base.png cards/chip.png -gravity north -geometry +0+640 -com
 
 # CARD 4: logo end card
 convert "$LOGO" -resize 1250x cards/logo_w.png
-convert cards/bg_dark.png cards/logo_w.png -gravity center -geometry +0-60 -composite \
+convert cards/bg_dark.png cards/logo_w.png -gravity center -geometry +0-130 -composite \
   -font $F5 -pointsize 30 -kerning 14 -fill '#D9D4C8' -gravity north \
-  -annotate +0+640 "BAKERS BEACH · TASMANIA" \
+  -annotate +0+560 "BAKERS BEACH · TASMANIA" \
   -font $F5 -pointsize 26 -kerning 8 -fill "$GOLD" \
-  -annotate +0+720 "TENFIFTYBAKERS.COM.AU  ·  CODE NWTRS" \
+  -annotate +0+636 "TENFIFTYBAKERS.COM.AU  ·  CODE NWTRS" \
   -font $F5 -pointsize 22 -kerning 6 -fill '#8F887A' \
-  -annotate +0+790 "MUSIC: “SLOW AGAIN” — WRITTEN FOR TEN FIFTY" \
+  -annotate +0+700 "MUSIC: “SLOW AGAIN” — WRITTEN FOR TEN FIFTY" \
   cards/card4.png
 
 # ---------- card segments with gentle zoom + fades ----------

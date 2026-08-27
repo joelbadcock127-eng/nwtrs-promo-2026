@@ -7,8 +7,8 @@ BASE = os.path.dirname(os.path.abspath(__file__))
 W, H = 1920, 1080
 SS = 2  # supersample
 FPS = 24
-DUR = 3.2
-N = int(DUR * FPS)  # 77 frames
+DUR = 4.6
+N = int(DUR * FPS)
 
 BG = (10, 12, 15)
 LAND = (28, 33, 40)
@@ -84,7 +84,7 @@ F5 = ImageFont.truetype(os.path.join(BASE, "fonts/Montserrat-500.ttf"), 38)
 
 os.makedirs(os.path.join(BASE, "map_frames"), exist_ok=True)
 
-ZOOM_END = 0.72  # fraction of timeline when zoom completes
+ZOOM_END = 0.45  # fraction of timeline when zoom completes (long readable hold after)
 
 for fi in range(N):
     t = fi / (N - 1)
@@ -149,8 +149,8 @@ for fi in range(N):
             dr.polygon(cp, fill=fill, outline=line, width=lw)
 
     # pin + pulse after zoom completes
-    if t > 0.60:
-        a = min(1.0, (t - 0.60) / 0.18)
+    if t > 0.42:
+        a = min(1.0, (t - 0.42) / 0.14)
         px, py = prj(*PIN)
         # pulse rings
         ph = (t * 2.2) % 1.0
@@ -176,8 +176,8 @@ for fi in range(N):
     img = img.resize((W, H), Image.LANCZOS)
 
     # label box with connector, fade in
-    if t > 0.70:
-        a = min(1.0, (t - 0.70) / 0.15)
+    if t > 0.50:
+        a = min(1.0, (t - 0.50) / 0.12)
         ov = Image.new("RGBA", (W, H), (0, 0, 0, 0))
         od = ImageDraw.Draw(ov)
         px, py = prj(*PIN); px /= SS; py /= SS
