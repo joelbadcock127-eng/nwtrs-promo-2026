@@ -28,7 +28,7 @@ convert cards/bg_welcome.png \
   -font $F6 -pointsize 30 -kerning 12 -fill "$GOLD" -gravity north \
   -annotate +0+330 "FROM 2027" \
   -font $F7 -pointsize 62 -kerning 6 -fill white \
-  -annotate +0+420 "TEN FIFTY BAKERS JOINS THE" \
+  -annotate +0+420 "TEN FIFTY BAKERS JOIN TO HOST THE" \
   -font $F8 -pointsize 74 -kerning 4 -fill "$GOLD" \
   -annotate +0+530 "NORTH WEST" \
   -annotate +0+640 "TRAIL RUNNING SERIES" \

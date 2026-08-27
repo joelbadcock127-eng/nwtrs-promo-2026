@@ -61,13 +61,13 @@ def main():
     # ---------------- titles ----------------
     # (shot_id, offset, dur, style, lines)
     T = [
-        (0, 2.2, 5.2, "open", ["TASMANIA PRESENTS", "TEN FIFTY BAKERS"]),
+        (0, 2.2, 5.2, "open", ["TASMANIA PRESENTS", "A HIDDEN GEM"]),
         (1, 0.10, 3.2, "lt", ["1,137 PRIVATE ACRES"]),
         (3, 0.20, 3.6, "lt", ["23 KM OF WILD TRAILS"]),
-        (8, 0.15, 2.9, "lt", ["SWAMP · FOREST · COAST"]),
+        (8, 0.15, 2.9, "lt", ["WILDERNESS · LUXURY · UNIQUE"]),
         (11, 0.60, 4.0, "lt", ["YOU WON'T RUN ALONE"]),
         (12, 0.40, 4.0, "lt", ["TRAIL RUNNING COUNTRY"]),
-        (18, 0.50, 6.4, "big", ["THEN COME HOME", "TO TEN FIFTY"]),
+        (18, 0.50, 6.4, "big", ["THEN COME HOME", "TO TEN FIFTY BAKERS"]),
         (20, 0.20, 3.6, "lt", ["OFF-GRID LUXURY · SLEEPS 10"]),
         (29, 0.20, 3.4, "lt", ["WOOD-FIRED SAUNA"]),
         (31, 0.20, 3.4, "lt", ["OUTDOOR BATHS"]),
