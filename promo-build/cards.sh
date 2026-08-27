@@ -38,7 +38,7 @@ convert cards/bg_welcome.png \
 convert cards/bg_dark.png \
   -font $F6 -pointsize 30 -kerning 10 -fill "$GOLD" -gravity north \
   -annotate +0+250 "FOR NWTRS RUNNERS, FRIENDS & FAMILY" \
-  -fill "$GOLD" -draw "rectangle 885,318 1035,322" \
+  -fill "$GOLD" -draw "rectangle 885,343 1035,347" \
   -font $F7 -pointsize 66 -kerning 3 -fill white \
   -annotate +0+405 "STAY 2 NIGHTS — 3RD NIGHT FREE" \
   -font $F5 -pointsize 30 -kerning 6 -fill '#D9D4C8' \
@@ -50,9 +50,9 @@ convert cards/bg_dark.png \
 # CARD 3: booking (with QR)
 convert cards/bg_dark.png \
   -font $F8 -pointsize 78 -kerning 5 -fill white -gravity north \
-  -annotate +0+330 "BOOK BY MIDNIGHT SUNDAY" \
+  -annotate +0+250 "BOOK BY MIDNIGHT SUNDAY" \
   -font $F7 -pointsize 52 -kerning 8 -fill "$GOLD" \
-  -annotate +0+490 "TENFIFTYBAKERS.COM.AU" \
+  -annotate +0+405 "TENFIFTYBAKERS.COM.AU" \
   cards/card3_base.png
 # QR panel: white rounded card + black QR + label
 convert cards/qr_raw.png -resize 252x252 cards/qr_s.png
@@ -65,7 +65,7 @@ convert -size 560x92 xc:none -fill none -stroke "$GOLD" -strokewidth 3 \
   -draw "roundrectangle 2,2 557,89 14,14" \
   -font $F7 -pointsize 40 -kerning 10 -stroke none -fill white -gravity center \
   -annotate +0+2 "USE CODE: NWTRS" cards/chip.png
-convert cards/card3_base.png cards/chip.png -gravity north -geometry +0+640 -composite cards/card3.png
+convert cards/card3_base.png cards/chip.png -gravity north -geometry +0+520 -composite cards/card3.png
 
 # CARD 4: logo end card
 convert "$LOGO" -resize 1250x cards/logo_w.png
@@ -74,15 +74,13 @@ convert -size 340x62 xc:none -fill none -stroke "$GOLD" -strokewidth 3 \
   -draw "roundrectangle 2,2 337,59 12,12" \
   -font $F6 -pointsize 28 -kerning 8 -stroke none -fill "$GOLD" -gravity center \
   -annotate +0+1 "CODE NWTRS" cards/chip4.png
-convert cards/bg_dark.png cards/logo_w.png -gravity center -geometry +0-130 -composite \
+convert cards/bg_dark.png cards/logo_w.png -gravity center -geometry +0-215 -composite \
   -font $F5 -pointsize 30 -kerning 14 -fill '#D9D4C8' -gravity north \
-  -annotate +0+545 "BAKERS BEACH · TASMANIA" \
+  -annotate +0+468 "BAKERS BEACH · TASMANIA" \
   -font $F5 -pointsize 26 -kerning 8 -fill "$GOLD" \
-  -annotate +0+612 "TENFIFTYBAKERS.COM.AU" \
-  -font $F5 -pointsize 22 -kerning 6 -fill '#8F887A' \
-  -annotate +0+742 "MUSIC: “SLOW AGAIN” — WRITTEN FOR TEN FIFTY" \
+  -annotate +0+538 "TENFIFTYBAKERS.COM.AU" \
   cards/card4_base.png
-convert cards/card4_base.png cards/chip4.png -gravity north -geometry +0+668 -composite cards/card4.png
+convert cards/card4_base.png cards/chip4.png -gravity north -geometry +0+600 -composite cards/card4.png
 
 # ---------- card segments with gentle zoom + fades ----------
 seg () { # img dur out fadeout — static cards, no zoom (text must not shimmer)

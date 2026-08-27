@@ -168,8 +168,8 @@ def main():
     # persistent QR from the offer card to the end of the video
     qrpng = os.path.join(tdir, "qr_corner.png")
     run(["convert", "-size", "1920x1080", "xc:none",
-         "(", os.path.join(BASE, "cards/qr_card.png"), "-resize", "220x", ")",
-         "-gravity", "south", "-geometry", "+0+36", "-composite", qrpng], "qr-corner")
+         "(", os.path.join(BASE, "cards/qr_card.png"), "-resize", "300x", ")",
+         "-gravity", "south", "-geometry", "+0+30", "-composite", qrpng], "qr-corner")
     pdurs = [dur_of(p) for p in [r1, r2] +
              [f"{SEG}/{i:03d}.mp4" for i in (42, 43)]]
     q0 = pdurs[0] + pdurs[1] + pdurs[2] - (XF[0] + XF[1] + XF[2]) + 0.4
